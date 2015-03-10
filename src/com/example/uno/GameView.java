@@ -10,10 +10,14 @@ import java.util.Random;
 
 
 
+
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -33,15 +37,48 @@ public class GameView extends View {
 	private int screenH;
 	private Bitmap cardBack;
 	private Bitmap nextCardButton;
+	private int validRank = 8;
+	private int validSuit = 0;
+	private boolean myTurn;
+	private float scale;
+	private Paint whitePaint;
+	private int oppScore;
+	private int myScore;
 
 	
 	public GameView (Context context) {
 		super(context);
 		myContext = context;
+		scale = myContext.getResources().getDisplayMetrics().density;
+		
+		whitePaint = new Paint(); 
+		whitePaint.setAntiAlias(true); 
+		whitePaint.setColor(Color.WHITE);
+		whitePaint.setStyle(Paint.Style.STROKE);
+		whitePaint.setTextAlign(Paint.Align.LEFT);
+		whitePaint.setTextSize(scale*15);
 		}
 	
 		@Override
 	protected void onDraw(Canvas canvas) { 
+			// drawing user's hand
+			for (int i = 0; i < userCards.size(); i++) {
+				if (i < 8) {
+				canvas.drawBitmap(userCards.get(i).getBmp(),
+				i*(scaledCardW+6), (screenH-scaledCardH-25), null);
+				}
+	        }
+			
+			// drawing comp's hand
+			for (int i = 0; i < compCards.size(); i++) {
+				if (i < 8){
+				canvas.drawBitmap(cardBack,	i*(scale*5), whitePaint.getTextSize()+(50*scale),
+				null);
+				}
+			}
+		
+			
+			
 //			Random random = new Random(); 
 //			int startX = 20;
 //			int startY = 20;
@@ -81,11 +118,11 @@ public class GameView extends View {
 		cardBack = Bitmap.createScaledBitmap(tempBitmap, scaledCardW, scaledCardH, false); 
 		nextCardButton = BitmapFactory.decodeResource(getResources(), R.drawable.arrow_next); 
         initCards();
-      //  dealCards();
-      //  drawCard(discardPile);
-    //    validSuit = discardPile.get(0).getSuit();
-      //  validRank = discardPile.get(0).getRank();
-	//	myTurn = new Random().nextBoolean();
+        dealCards();
+        drawCard(discardCards);
+      //  validSuit = discardCards.get(0).getSuit();
+     //   validRank = discardCards.get(0).getRank();
+	    myTurn = new Random().nextBoolean();
 	//	if (!myTurn) {
 	//		makeComputerPlay();			
 	//	}
