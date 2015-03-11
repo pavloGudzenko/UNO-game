@@ -37,20 +37,25 @@ public class GameView extends View {
 	private int screenH;
 	private Bitmap cardBack;
 	private Bitmap nextCardButton;
-	private int validRank = 8;
-	private int validSuit = 0;
+	private String validNumber = "";
+	private String validColor = "";
 	private boolean myTurn;
 	private float scale;
 	private Paint whitePaint;
 	private int oppScore;
 	private int myScore;
+	private int movingCardIdx = -1;
+	private int movingX;
+	private int movingY;
+
 
 	
 	public GameView (Context context) {
 		super(context);
 		myContext = context;
 		scale = myContext.getResources().getDisplayMetrics().density;
-		myTurn = new Random().nextBoolean();
+		//myTurn = new Random().nextBoolean();
+		myTurn = true;
 		
 		whitePaint = new Paint(); 
 		whitePaint.setAntiAlias(true); 
@@ -61,18 +66,11 @@ public class GameView extends View {
 		}
 	
 		@Override
-	protected void onDraw(Canvas canvas) { 
-			// drawing user's hand
-			for (int i = 0; i < userCards.size(); i++) {
-				if (i < 8) {
-				canvas.drawBitmap(userCards.get(i).getBmp(),
-				i*(scaledCardW+6), (screenH-scaledCardH-25), null);
-				}
-	        }
+	protected void onDraw(Canvas canvas) { 			
 			
 			// drawing comp's hand
 			for (int i = 0; i < compCards.size(); i++) {
-				if (i < 8){
+				if (i < 10){
 				canvas.drawBitmap(cardBack,	i*(scaledCardW+6), 25, null);
 				}
 			}
@@ -83,8 +81,15 @@ public class GameView extends View {
 			canvas.drawBitmap(cardBack,	i*(scale*3), (screenH/2-scaledCardH/2), null);
 				}
 			}
-		
 			
+			// draw discardCards
+			canvas.drawBitmap(cardBack, (screenW/2)-cardBack.getWidth()-10, (screenH/2)-(cardBack.getHeight()/2), null);
+			if (!discardCards.isEmpty()) {
+				canvas.drawBitmap(discardCards.get(0).getBmp(), 
+								  screenW/2-scaledCardW/2, 
+								  (screenH/2-scaledCardH/2), 
+								  null);
+			}
 			
 			
 //			Random random = new Random(); 
@@ -97,6 +102,18 @@ public class GameView extends View {
 //			deckCards.remove(randomCardId);
 //			startX = startX + scaledCardW + betweenCardGap;
 //			 }
+			
+			// drawing user's hand
+			for (int i = 0; i < userCards.size(); i++) {
+				if (i == movingCardIdx) {
+					canvas.drawBitmap(userCards.get(i).getBmp(), movingX, movingY, null);
+					} else {				
+				canvas.drawBitmap(userCards.get(i).getBmp(),
+				i*(scaledCardW+6), (screenH-scaledCardH-25), null);
+			  }
+	        }
+			
+			invalidate();
 		}
 		
 	public boolean onTouchEvent(MotionEvent event) { 
@@ -104,11 +121,36 @@ public class GameView extends View {
 		int X = (int)event.getX();
 		int Y = (int)event.getY();
 		switch (eventaction ) {
-		case MotionEvent.ACTION_DOWN:
+		       case MotionEvent.ACTION_DOWN:
+		    	   myTurn = true; // don't forget to remove!!!!!!!!!!! 
+		           if (myTurn) { 
+		              for (int i = 0; i < userCards.size(); i++) { 
+		            	if (X > i*(scaledCardW+6) && X < i*(scaledCardW+6) + scaledCardW && 
+		        			Y > screenH-scaledCardH-25) {
+		                       movingCardIdx = i;
+		                       movingX = X-(int)(30*scale);
+		                       movingY = Y-(int)(70*scale);
+		                    }
+		                }
+		             // i*(scaledCardW+6), (screenH-scaledCardH-25)
+		             }
 		break;
 		case MotionEvent.ACTION_MOVE:
+			movingX = X-(int)(30*scale);
+			movingY = Y-(int)(70*scale);
 		break;
 		case MotionEvent.ACTION_UP:
+			if (movingCardIdx > -1 &&  X > (screenW/2)-(100*scale) &&
+			X < (screenW/2)+(100*scale) & Y > (screenH/2)-(100*scale) &&
+			Y < (screenH/2)+(100*scale) &&	(userCards.get(movingCardIdx).getNumber() == validNumber ||
+			userCards.get(movingCardIdx).getColor() ==	validColor) ||
+			userCards.get(movingCardIdx).getColor() == "all") {
+			validNumber = userCards.get(movingCardIdx).getNumber();
+			validColor = userCards.get(movingCardIdx).getColor();
+			discardCards.add(0, userCards.get(movingCardIdx));
+			userCards.remove(movingCardIdx);
+			}
+			movingCardIdx = -1; 
 		break;
 		}
 		invalidate();
@@ -128,12 +170,12 @@ public class GameView extends View {
         initCards();
         dealCards();
         drawCard(discardCards);
-      //  validSuit = discardCards.get(0).getSuit();
-     //   validRank = discardCards.get(0).getRank();
+        validColor = discardCards.get(0).getColor();
+        validNumber = discardCards.get(0).getNumber();
 	    myTurn = new Random().nextBoolean();
-	//	if (!myTurn) {
-	//		makeComputerPlay();			
-	//	}
+		if (!myTurn) {
+		//	makeComputerPlay();			
+		}
     }
 	
 	private void initCards() {
