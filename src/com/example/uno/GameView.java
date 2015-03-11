@@ -50,6 +50,7 @@ public class GameView extends View {
 		super(context);
 		myContext = context;
 		scale = myContext.getResources().getDisplayMetrics().density;
+		myTurn = new Random().nextBoolean();
 		
 		whitePaint = new Paint(); 
 		whitePaint.setAntiAlias(true); 
@@ -72,11 +73,18 @@ public class GameView extends View {
 			// drawing comp's hand
 			for (int i = 0; i < compCards.size(); i++) {
 				if (i < 8){
-				canvas.drawBitmap(cardBack,	i*(scale*5), whitePaint.getTextSize()+(50*scale),
-				null);
+				canvas.drawBitmap(cardBack,	i*(scaledCardW+6), 25, null);
+				}
+			}
+			
+			// drawing pile
+			for (int i = 0; i < 10; i++) {
+				if (i < 10){
+			canvas.drawBitmap(cardBack,	i*(scale*3), (screenH/2-scaledCardH/2), null);
 				}
 			}
 		
+			
 			
 			
 //			Random random = new Random(); 
