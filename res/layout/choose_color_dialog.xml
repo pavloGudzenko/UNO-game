@@ -19,35 +19,54 @@ android:textColor="#FFFFFF"
 </TextView>
 
 <Button
-android:id="@+id/redButton"
-android:layout_width="225dp"
-android:layout_height="wrap_content"
-android:text="Red"
-android:textColor="#FF3333"
->
+    android:id="@+id/redButton"
+    android:layout_width="match_parent"
+    android:layout_height="45dp"
+    android:layout_marginBottom="5dp"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    android:layout_marginTop="3dp"
+    android:background="#FF3333"
+    android:text="Red"
+    android:textColor="#FF3333" >
+
 </Button>
+
 <Button
-android:id="@+id/greenButton"
-android:layout_width="225dp"
-android:layout_height="wrap_content"
-android:text="Green"
-android:textColor="#009933"
->
+    android:id="@+id/greenButton"
+    android:layout_width="match_parent"
+    android:layout_height="45dp"
+    android:layout_marginBottom="5dp"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    android:background="#009933"
+    android:text="Green"
+    android:textColor="#009933" >
+
 </Button>
+
 <Button
-android:id="@+id/blueButton"
-android:layout_width="225dp"
-android:layout_height="wrap_content"
-android:text="Blue"
-android:textColor="#0066FF"
->
+    android:id="@+id/blueButton"
+    android:layout_width="match_parent"
+    android:layout_height="45dp"
+    android:layout_marginBottom="5dp"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    android:background="#0066FF"
+    android:text="Blue"
+    android:textColor="#0066FF" >
+
 </Button>
+
 <Button
-android:id="@+id/yellowButton"
-android:layout_width="225dp"
-android:layout_height="wrap_content"
-android:text="Yellow"
-android:textColor="#FFD633"
->
+    android:id="@+id/yellowButton"
+    android:layout_width="match_parent"
+    android:layout_height="45dp"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    android:background="#FFD633"
+    android:text="Yellow"
+    android:textColor="#FFD633" >
+
 </Button>
 </LinearLayout>

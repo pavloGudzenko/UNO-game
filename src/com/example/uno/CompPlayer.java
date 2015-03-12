@@ -5,19 +5,18 @@ import java.util.List;
 public class CompPlayer {
 	
 	public int makePlay(List<Card> compCards, String color, String number) {
-			int play = 0;
-			int wildCard = 0;
+			int play = -1;
+			int wildCard = -1;
 			for (int i = 0; i < compCards.size(); i++) {
-			     int tempId = compCards.get(i).getId();
 			     String tempColor = compCards.get(i).getColor();
 			     String tempNumber = compCards.get(i).getNumber();  
 			   if (color.equals(tempColor) || number.equals(tempNumber)) {
-				play = tempId;			 
+				play = i;			 
 			   }
-			   if (tempColor.equals("plus4")){wildCard = tempId;}
-			   if (tempColor.equals("all")){wildCard = tempId;}
+			   if (tempNumber.equals("plus4")){wildCard = i;}
+			   if (tempNumber.equals("all")){wildCard = i;}
 		}
-			if (play == 0 && wildCard != 0){
+			if (play == -1 && wildCard > -1){
 				play = wildCard;				
 			}
 			return play;
@@ -44,9 +43,9 @@ public class CompPlayer {
 				}
 			}
 			
-			if (blue>red) color = "blue";
-			if (yellow>blue) color = "yellow";
-			if (green>yellow) color = "green"; 
+			if (blue>red) {color = "blue";}
+			if (yellow>blue) { color = "yellow";}
+			if (green>yellow) {color = "green";} 
 			
 			return color;
 			}
