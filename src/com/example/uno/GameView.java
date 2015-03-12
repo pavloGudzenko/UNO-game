@@ -150,7 +150,10 @@ public class GameView extends View {
 				showChooseColorDialog();
 			  } else {
 				  myTurn = false;
+				  checkForPenalty();
+				  if (!myTurn){
 				  makeComputerPlay();
+				  }
 			  }
 			}
 		} 
@@ -255,7 +258,10 @@ public class GameView extends View {
 		      chooseColorDialog.dismiss();
 		       Toast.makeText(myContext, "You chose RED color", Toast.LENGTH_SHORT).show();
 		       myTurn = false;
+		       checkForPenalty();
+		       if (!myTurn){
 				  makeComputerPlay();
+		       }
 		}
 		});
 		
@@ -266,7 +272,10 @@ public class GameView extends View {
 		      chooseColorDialog.dismiss();
 		       Toast.makeText(myContext, "You chose GREEN color", Toast.LENGTH_SHORT).show();
 		       myTurn = false;
+		       checkForPenalty();
+		       if (!myTurn){
 				  makeComputerPlay();
+		       }
 		}
 		});
 		
@@ -277,7 +286,10 @@ public class GameView extends View {
 		      chooseColorDialog.dismiss();
 		       Toast.makeText(myContext, "You chose BLUE color", Toast.LENGTH_SHORT).show();
 		       myTurn = false;
+		       checkForPenalty();
+		       if (!myTurn){
 				  makeComputerPlay();
+		       }
 		}
 		});
 		
@@ -288,11 +300,15 @@ public class GameView extends View {
 		      chooseColorDialog.dismiss();
 		       Toast.makeText(myContext, "You chose YELLOW color", Toast.LENGTH_SHORT).show();
 		       myTurn = false;
+		       checkForPenalty();
+		       if (!myTurn){
 				  makeComputerPlay();
+		       }
 		}
 		});
 		chooseColorDialog.show();
 		}
+	
 	
 	private boolean checkForValidDraw() {
 		boolean canDraw = true;
@@ -328,6 +344,47 @@ public class GameView extends View {
 				//endHand();
 			}
 			myTurn = true;
+			checkForPenalty();
 		 }
+	
 		
-	}
+   private void checkForPenalty(){
+	   if (myTurn && validNumber.equals("plus2")){
+		   drawCard(userCards);
+		   drawCard(userCards);
+		   skipTurn();
+	   } else if (myTurn && validNumber.equals("plus4")){
+		   drawCard(userCards);
+		   drawCard(userCards);
+		   drawCard(userCards);
+		   drawCard(userCards);
+		   skipTurn();
+	   } else if (myTurn && validNumber.equals("skip")){
+		   skipTurn();	   
+	   }	
+	   
+	   if (!myTurn && validNumber.equals("plus2")){
+		   drawCard(compCards);
+		   drawCard(compCards);
+		   skipTurn();
+	   } else if (!myTurn && validNumber.equals("plus4")){
+		   drawCard(compCards);
+		   drawCard(compCards);
+		   drawCard(compCards);
+		   drawCard(compCards);
+		   skipTurn();
+   } else if (!myTurn && validNumber.equals("skip")){
+	   skipTurn();	   
+   }
+   }
+   
+   private void skipTurn(){
+	   if (myTurn){
+		   myTurn = false;
+		   makeComputerPlay();
+	   } else {
+		   myTurn = true; 
+	   }	   
+   }
+   
+   }
