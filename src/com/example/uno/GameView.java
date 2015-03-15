@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Random;
 
 
+
+
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -16,6 +18,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -29,6 +32,7 @@ public class GameView extends View {
 	private List<Card> discardCards = new ArrayList<Card>();
 	private List<Card> userCards = new ArrayList<Card>();
 	private List<Card> compCards = new ArrayList<Card>();
+	private List<Card> penaltyCards = new ArrayList<Card>();
 	private final String [] colorsArray = {"red", "yellow", "blue", "green"}; 
 	private final String [] numbersArray = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "skip", "turn", "plus2"};
 	private final String [] wildCardsColorArray = {"all", "all"};
@@ -38,6 +42,10 @@ public class GameView extends View {
 	private int screenW;
 	private int screenH;
 	private Bitmap cardBack;
+	private Bitmap lightRed;
+	private Bitmap lightBlue;
+	private Bitmap lightGreen;
+	private Bitmap lightYellow;
 	private Bitmap nextCardButton;
 	private String validNumber = "";
 	private String validColor = "";
@@ -50,6 +58,7 @@ public class GameView extends View {
 	private int movingX;
 	private int movingY;
 	private CompPlayer computerPlayer = new	CompPlayer();
+	boolean toPlay = false;
 
 
 	
@@ -72,9 +81,11 @@ public class GameView extends View {
 			
 			// drawing comp's hand
 			for (int i = 0; i < compCards.size(); i++) {
-				if (i < 10){
-				canvas.drawBitmap(cardBack,	i*(scaledCardW+6), 25, null);
-				}
+				if (compCards.size() <= 10){
+				canvas.drawBitmap(compCards.get(i).getBmp(),	i*(scaledCardW+6) + scaledCardW/3*2, 25, null);
+				} else {
+				canvas.drawBitmap(compCards.get(i).getBmp(),	i*((scaledCardW/2)+6) + scaledCardW/3*2 , 25, null);
+					}
 			}
 			
 			// drawing pile
@@ -94,13 +105,32 @@ public class GameView extends View {
 			}
 			
 			
+			// draw lighters;
+			if (validColor.equals("red")) {
+			canvas.drawBitmap(lightRed, screenW-cardBack.getWidth(), (screenH/2)-(lightRed.getHeight()/2), null);
+			} else if (validColor.equals("green")) {
+			canvas.drawBitmap(lightGreen, screenW-cardBack.getWidth(), (screenH/2)-(lightRed.getHeight()/2), null);
+			} else if (validColor.equals("blue")) {
+				canvas.drawBitmap(lightBlue, screenW-cardBack.getWidth(), (screenH/2)-(lightRed.getHeight()/2), null);
+			} else if (validColor.equals("yellow")) {
+				canvas.drawBitmap(lightYellow, screenW-cardBack.getWidth(), (screenH/2)-(lightRed.getHeight()/2), null);
+			}			
+			
+			
+			
+			
 			// drawing user's hand
 			for (int i = 0; i < userCards.size(); i++) {
 				if (i == movingCardIdx) {
 					canvas.drawBitmap(userCards.get(i).getBmp(), movingX, movingY, null);
-					} else {				
+					} else {
+				if (userCards.size() <= 10){		
 				canvas.drawBitmap(userCards.get(i).getBmp(),
-				i*(scaledCardW+6), (screenH-scaledCardH-25), null);
+				i*(scaledCardW+6) + scaledCardW/3*2, (screenH-scaledCardH-25), null);
+				} else {
+					canvas.drawBitmap(userCards.get(i).getBmp(),
+							i*((scaledCardW/2)+6) + scaledCardW/3*2, (screenH-scaledCardH-25), null);
+				}
 			  }
 	        }
 			
@@ -114,16 +144,27 @@ public class GameView extends View {
 		switch (eventaction ) {
 		       case MotionEvent.ACTION_DOWN:
 		           if (myTurn) { 
+		        	   if (userCards.size() <= 10){
 		              for (int i = 0; i < userCards.size(); i++) { 
-		            	if (X > i*(scaledCardW+6) && X < i*(scaledCardW+6) + scaledCardW && 
+		            	if (X > i*(scaledCardW+6) + scaledCardW/3*2 && X < i*(scaledCardW+6) + scaledCardW/3*2 + scaledCardW && 
 		        			Y > screenH-scaledCardH-25) {
 		                       movingCardIdx = i;
 		                       movingX = X-(int)(30*scale);
 		                       movingY = Y-(int)(70*scale);
 		                    }
 		                }
-		             // i*(scaledCardW+6), (screenH-scaledCardH-25)
-		             }
+		            } else {
+		            	 for (int i = 0; i < userCards.size(); i++) { 
+				            	if (X > i*((scaledCardW/2)+6) + scaledCardW/3*2 && X < i*((scaledCardW/2)+6) + scaledCardW/3*2 + scaledCardW/2+6 && 
+				        			Y > screenH-scaledCardH-25) {
+				                       movingCardIdx = i;
+				                       movingX = X-(int)(30*scale);
+				                       movingY = Y-(int)(70*scale);
+				                 }
+				            }
+		            	// canvas.drawBitmap(compCards.get(i).getBmp(),	i*((scaledCardW/2)+6) + scaledCardW/3*2 , 25, null);		            	
+		           }
+		      }
 		break;
 		case MotionEvent.ACTION_MOVE:
 			movingX = X-(int)(30*scale);
@@ -148,25 +189,28 @@ public class GameView extends View {
 			} else {
 			if (validColor == "all") {
 				showChooseColorDialog();
-			  } else {
+			  }  
+			else {
 				  myTurn = false;
 				  checkForPenalty();
-				  if (!myTurn){
+				  if (!myTurn){  
 				  makeComputerPlay();
-				  }
 			  }
 			}
+		  }
 		} 
 			
 			if (movingCardIdx == -1 && myTurn && X > 0 && X < scaledCardH + (70*scale) && 
 					Y > (screenH/2-scaledCardH/2)-(70*scale) && Y < (screenH/2+scaledCardH/2)+(70*scale)) {
 					if (checkForValidDraw()) {
 					drawCard(userCards);
+					if (checkForValidDraw()){
 					makeComputerPlay();
+					}
 					} else {
 					Toast.makeText(myContext, "You have cards for playing.", Toast.LENGTH_SHORT).show();
-					}
-					} 
+				  }
+				} 
 			
 			movingCardIdx = -1; 
 		break;
@@ -183,11 +227,25 @@ public class GameView extends View {
 		Bitmap tempBitmap = BitmapFactory.decodeResource(myContext.getResources(), R.drawable.card_back);
         scaledCardW = (int) (screenW/12);
         scaledCardH = (int) (scaledCardW*1.55);
-		cardBack = Bitmap.createScaledBitmap(tempBitmap, scaledCardW, scaledCardH, false); 
+		cardBack = Bitmap.createScaledBitmap(tempBitmap, scaledCardW, scaledCardH, false);
+		
+		tempBitmap = BitmapFactory.decodeResource(myContext.getResources(), R.drawable.button_red);
+		lightRed = Bitmap.createScaledBitmap(tempBitmap, screenW/18, screenW/18, false);
+		tempBitmap = BitmapFactory.decodeResource(myContext.getResources(), R.drawable.button_blue);
+		lightBlue = Bitmap.createScaledBitmap(tempBitmap, screenW/18, screenW/18, false);
+		tempBitmap = BitmapFactory.decodeResource(myContext.getResources(), R.drawable.button_green);
+		lightGreen = Bitmap.createScaledBitmap(tempBitmap, screenW/18, screenW/18, false);
+		tempBitmap = BitmapFactory.decodeResource(myContext.getResources(), R.drawable.button_yellow);
+		lightYellow = Bitmap.createScaledBitmap(tempBitmap, screenW/18, screenW/18, false);
 		nextCardButton = BitmapFactory.decodeResource(getResources(), R.drawable.arrow_next); 
         initCards();
         dealCards();
         drawCard(discardCards);
+        if (discardCards.get(0).getNumber().equals("skip") || discardCards.get(0).getNumber().equals("turn")
+        		|| discardCards.get(0).getNumber().equals("plus2") || discardCards.get(0).getNumber().equals("plus4")
+        	    || discardCards.get(0).getNumber().equals("all")) {
+        drawCard(discardCards);
+        }
         validColor = discardCards.get(0).getColor();
         validNumber = discardCards.get(0).getNumber();
 	    myTurn = new Random().nextBoolean();
@@ -258,10 +316,10 @@ public class GameView extends View {
 		      chooseColorDialog.dismiss();
 		       Toast.makeText(myContext, "You chose RED color", Toast.LENGTH_SHORT).show();
 		       myTurn = false;
-		       checkForPenalty();
-		       if (!myTurn){
+				  checkForPenalty();
+				  if (!myTurn){  
 				  makeComputerPlay();
-		       }
+				  }
 		}
 		});
 		
@@ -270,12 +328,13 @@ public class GameView extends View {
 		   public void onClick(View view){
 		     validColor = "green";
 		      chooseColorDialog.dismiss();
-		       Toast.makeText(myContext, "You chose GREEN color", Toast.LENGTH_SHORT).show();
+		       Toast.makeText(myContext, "You chose GREEN color", Toast.LENGTH_SHORT).show();		       
 		       myTurn = false;
-		       checkForPenalty();
-		       if (!myTurn){
+				  checkForPenalty();
+				  if (!myTurn){  
 				  makeComputerPlay();
-		       }
+				  }
+
 		}
 		});
 		
@@ -286,10 +345,11 @@ public class GameView extends View {
 		      chooseColorDialog.dismiss();
 		       Toast.makeText(myContext, "You chose BLUE color", Toast.LENGTH_SHORT).show();
 		       myTurn = false;
-		       checkForPenalty();
-		       if (!myTurn){
+				  checkForPenalty();
+				  if (!myTurn){  
 				  makeComputerPlay();
-		       }
+				  }
+
 		}
 		});
 		
@@ -300,10 +360,10 @@ public class GameView extends View {
 		      chooseColorDialog.dismiss();
 		       Toast.makeText(myContext, "You chose YELLOW color", Toast.LENGTH_SHORT).show();
 		       myTurn = false;
-		       checkForPenalty();
-		       if (!myTurn){
+				  checkForPenalty();
+				  if (!myTurn){  
 				  makeComputerPlay();
-		       }
+				  }
 		}
 		});
 		chooseColorDialog.show();
@@ -329,6 +389,10 @@ public class GameView extends View {
 			tempPlay = computerPlayer.makePlay(compCards, validColor, validNumber);
 			if (tempPlay == -1) {
 				drawCard(compCards);
+				tempPlay = computerPlayer.makePlay(compCards, validColor, validNumber);
+				 if (tempPlay != -1){
+					 makeComputerPlay(); 
+				 }
 			} else {
 			  if (compCards.get(tempPlay).getColor().equals("all")) {
 			     validColor = computerPlayer.chooseColor(compCards);
@@ -349,42 +413,163 @@ public class GameView extends View {
 	
 		
    private void checkForPenalty(){
-	   if (myTurn && validNumber.equals("plus2")){
-		   drawCard(userCards);
-		   drawCard(userCards);
-		   skipTurn();
-	   } else if (myTurn && validNumber.equals("plus4")){
-		   drawCard(userCards);
-		   drawCard(userCards);
-		   drawCard(userCards);
-		   drawCard(userCards);
-		   skipTurn();
-	   } else if (myTurn && validNumber.equals("skip")){
+	   
+	   if (myTurn == true && validNumber.equals("plus2")){
+		    // add to cards to penalty Array
+			   for (int i = 0; i<2; i++){
+				   drawCard(penaltyCards);
+			   }
+		       
+			   int cardID = goAfterPenaltyPlus2(userCards);
+			   if (cardID == -1){
+			        takePenaltyCards(userCards); 
+			        skipTurn();
+		   } else {
+			   drawOrAnswerDialog(); 
+		   }
+	   }
+	   
+	   
+	   else if (myTurn == true && validNumber.equals("plus4")){
+		   for (int i = 0; i<4; i++){
+			   drawCard(penaltyCards);
+		   }
+		   
+		   int cardID = goAfterPenaltyPlus4(userCards);
+		   if (cardID == -1){  
+			   takePenaltyCards(userCards);
+		       skipTurn();
+		   } else {
+			   drawOrAnswerDialog();
+		   }
+	   } 
+	   
+	   
+	   else if (myTurn && validNumber.equals("skip")){
 		   skipTurn();	   
-	   }	
+	   } 
+	   
+	   
+	   else if (myTurn && validNumber.equals("turn")){
+		   skipTurn();	   
+	   }
+	   
+	   //////// computer takes PENALTY ------------------------------
+	   
 	   
 	   if (!myTurn && validNumber.equals("plus2")){
-		   drawCard(compCards);
-		   drawCard(compCards);
-		   skipTurn();
-	   } else if (!myTurn && validNumber.equals("plus4")){
-		   drawCard(compCards);
-		   drawCard(compCards);
-		   drawCard(compCards);
-		   drawCard(compCards);
-		   skipTurn();
-   } else if (!myTurn && validNumber.equals("skip")){
+		   for (int i = 0; i<2; i++){
+			   drawCard(penaltyCards);
+		   }
+		   
+		   int cardID = goAfterPenaltyPlus2(compCards);
+		   if (cardID == -1){
+		       takePenaltyCards(compCards);
+		       skipTurn();
+		   } else {
+			   validColor = compCards.get(cardID).getColor();
+			   validNumber = compCards.get(cardID).getNumber();
+			   discardCards.add(0, compCards.get(cardID));
+			   compCards.remove(cardID);
+			   myTurn = true;
+			   checkForPenalty();
+		   }
+	   } 
+	   
+	   
+	   else if (!myTurn && validNumber.equals("plus4")){
+		   for (int i = 0; i<4; i++){
+			   drawCard(penaltyCards);
+		   }
+		   
+		   int cardID = goAfterPenaltyPlus4(compCards);
+		   if (cardID == -1){
+               takePenaltyCards(compCards);
+			   skipTurn();
+		   } else {
+			   validColor = computerPlayer.chooseColor(compCards);
+			   validNumber = compCards.get(cardID).getNumber();
+			   discardCards.add(0, compCards.get(cardID));
+			   compCards.remove(cardID);
+			   myTurn = true;
+			   checkForPenalty();			   
+		   }
+   } 
+	   
+	   else if (!myTurn && validNumber.equals("skip")){
+	   skipTurn();	   
+   } 
+	   
+	   else if (!myTurn && validNumber.equals("turn")){
 	   skipTurn();	   
    }
    }
    
+   
+   
    private void skipTurn(){
-	   if (myTurn){
+	   if (myTurn == true){
 		   myTurn = false;
 		   makeComputerPlay();
-	   } else {
+	   } else if (myTurn == false) {
 		   myTurn = true; 
 	   }	   
    }
    
+   private int goAfterPenaltyPlus2(List<Card> handCards){
+	   int cardID = -1;
+	    for (int i = 0; i < handCards.size(); i++){
+	    	if ( handCards.get(i).getNumber().equals("plus2")){
+	    		cardID = i;
+	    	}	    	
+	    } 
+	    return cardID;
+   }
+   
+   private int goAfterPenaltyPlus4(List<Card> handCards){
+	   int cardID = -1;
+	    for (int i = 0; i < handCards.size(); i++){
+	    	if ( handCards.get(i).getNumber().equals("plus4")){
+	    		cardID = i;
+	    	}	    	
+	    } 
+	    return cardID;
+   }
+   
+   
+   private void drawOrAnswerDialog() {	  
+		final Dialog drawOrAnswerDialog = new Dialog(myContext);
+		drawOrAnswerDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		drawOrAnswerDialog.setContentView(R.layout.draw_rads_or_aswer);
+		
+		Button answerButton = (Button) drawOrAnswerDialog.findViewById(R.id.answerButton);
+		answerButton.setOnClickListener(new View.OnClickListener(){
+		   public void onClick(View view){
+			     toPlay = true;
+			     drawOrAnswerDialog.dismiss();
+			     Toast.makeText(myContext, "You chose to PLAY", Toast.LENGTH_SHORT).show();
+		       }
+		});
+		
+		Button greenButton = (Button) drawOrAnswerDialog.findViewById(R.id.pickupButton);
+		greenButton.setOnClickListener(new View.OnClickListener(){
+		   public void onClick(View view){
+			   toPlay = false;
+			   drawOrAnswerDialog.dismiss();
+			   Toast.makeText(myContext, "You chose to DRAW cards", Toast.LENGTH_SHORT).show();
+			   takePenaltyCards(userCards);
+		       }
+		});
+			
+		drawOrAnswerDialog.show();
+           
+		}
+
+   
+   private void takePenaltyCards(List<Card> handCards){
+	   for (int i = penaltyCards.size() - 1; i >= 0; i--){
+		   handCards.add(0, penaltyCards.get(i));
+	       penaltyCards.remove(i);
+	     } 
+   }
    }

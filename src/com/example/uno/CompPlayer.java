@@ -32,13 +32,13 @@ public class CompPlayer {
 			
 			for (int i = 0; i < compCards.size(); i++) {
 				String tempColor = compCards.get(i).getColor();	
-				if (tempColor.equals(red)){
+				if (tempColor.equals("red")){
 					red++;
-				} else if (tempColor.equals(blue)){
+				} else if (tempColor.equals("blue")){
 					blue++;
-				} else if (tempColor.equals(yellow)){
+				} else if (tempColor.equals("yellow")){
 					yellow++;
-				} else if (tempColor.equals(green)){
+				} else if (tempColor.equals("green")){
 					green++;
 				}
 			}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+android:id="@+id/chooseNextStepLayout"
+android:layout_width="175dp"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+android:layout_gravity="top"
+xmlns:android="http://schemas.android.com/apk/res/android"
+>
+<TextView
+android:id="@+id/chooseNextStep"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Would you like to answer or draw Cards"
+android:textSize="18sp"
+android:layout_marginLeft="5dp"
+android:textColor="#FFFFFF"
+>
+</TextView>
+
+<Button
+android:id="@+id/answerButton"
+android:layout_width="165dp"
+android:layout_height="wrap_content"
+android:text="Answer" >
+</Button>
+
+<Button
+android:id="@+id/pickupButton"
+android:layout_width="165dp"
+android:layout_height="wrap_content"
+android:text="Draw Cards" >
+</Button>
+
+</LinearLayout>
