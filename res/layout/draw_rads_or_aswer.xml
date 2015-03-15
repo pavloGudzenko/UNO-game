@@ -12,7 +12,7 @@ android:id="@+id/chooseNextStep"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:text="Would you like to answer or draw Cards"
-android:textSize="18sp"
+android:textSize="16sp"
 android:layout_marginLeft="5dp"
 android:textColor="#FFFFFF"
 >

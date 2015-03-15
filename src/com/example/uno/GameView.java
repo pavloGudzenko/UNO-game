@@ -11,6 +11,8 @@ import java.util.Random;
 
 
 
+
+
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -22,8 +24,10 @@ import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class GameView extends View {
@@ -185,7 +189,7 @@ public class GameView extends View {
 			discardCards.add(0, userCards.get(movingCardIdx));
 			userCards.remove(movingCardIdx);
 			if (userCards.isEmpty()) {
-				//endHand();
+				endHand();
 			} else {
 			if (validColor == "all") {
 				showChooseColorDialog();
@@ -308,6 +312,7 @@ public class GameView extends View {
 		final Dialog chooseColorDialog = new Dialog(myContext);
 		chooseColorDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		chooseColorDialog.setContentView(R.layout.choose_color_dialog);
+		chooseColorDialog.setCancelable(false);
 		
 		Button redButton = (Button) chooseColorDialog.findViewById(R.id.redButton);
 		redButton.setOnClickListener(new View.OnClickListener(){
@@ -405,7 +410,7 @@ public class GameView extends View {
 			compCards.remove(tempPlay);
 		}
 			if (compCards.isEmpty()) {
-				//endHand();
+				endHand();
 			}
 			myTurn = true;
 			checkForPenalty();
@@ -541,6 +546,10 @@ public class GameView extends View {
 		final Dialog drawOrAnswerDialog = new Dialog(myContext);
 		drawOrAnswerDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		drawOrAnswerDialog.setContentView(R.layout.draw_rads_or_aswer);
+		drawOrAnswerDialog.setCancelable(false);
+		WindowManager.LayoutParams dialogPosition = drawOrAnswerDialog.getWindow().getAttributes();
+		dialogPosition.x = (int) (screenW/2 + scaledCardW);
+		dialogPosition.y = (int) (screenH/2 - dialogPosition.height/2);
 		
 		Button answerButton = (Button) drawOrAnswerDialog.findViewById(R.id.answerButton);
 		answerButton.setOnClickListener(new View.OnClickListener(){
@@ -572,4 +581,53 @@ public class GameView extends View {
 	       penaltyCards.remove(i);
 	     } 
    }
+   
+   
+   private void endHand() {
+	   final Dialog endHandDialog = new Dialog(myContext);
+	       endHandDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+	       endHandDialog.setCancelable(false);
+	       endHandDialog.setContentView(R.layout.end_hand_dialog);
+	   TextView endHandText = (TextView)  endHandDialog.findViewById(R.id.endHandText);
+	   if (userCards.isEmpty()) {
+	   endHandText.setText("Congratulations! You won!");
+	   } else if (compCards.isEmpty()) {
+	   endHandText.setText("Sorry... you loose");
+	   }
+	   Button nextHandButton = (Button) endHandDialog.findViewById(R.id.nextHandButton);
+	    nextHandButton.setText("New Game");
+	   
+	   nextHandButton.setOnClickListener
+	   (new View.OnClickListener(){
+	      public void onClick(View view){
+	       initNewHand();
+	          endHandDialog.dismiss();
+	     }
+	   });
+	   
+	   endHandDialog.show();
+	   }
+   
+   
+   private void initNewHand() {
+	   if (userCards.isEmpty()) {
+		   myTurn = true;
+	   } else if (compCards.isEmpty()) {
+		   myTurn = false;
+	   }
+		   deckCards.addAll(discardCards);
+		   deckCards.addAll(compCards);
+		   deckCards.addAll(userCards);
+		   discardCards.clear();
+		   userCards.clear();
+		   compCards.clear();
+		   dealCards();
+		   drawCard(discardCards);
+		   validColor = discardCards.get(0).getColor();
+		   validNumber = discardCards.get(0).getNumber();
+	   if (!myTurn) {
+		   makeComputerPlay();
+	   }
+	   }
+   
    }
