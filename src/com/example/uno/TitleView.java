@@ -13,10 +13,13 @@ public class TitleView extends View {
 	     private Bitmap titleGraphic;
 	     private Bitmap startButtonUp;
 	     private Bitmap startButtonDown;
+	     private Bitmap rulesButtonUp;
+	     private Bitmap rulesButtonDown;
 
 	     private int screenW;
 	     private int screenH;
 	     private boolean playButtonPressed;
+	     private boolean rulesButtonPressed;
 	     private Context myContext;
 	     
 	
@@ -24,8 +27,10 @@ public class TitleView extends View {
 		super(context);
 		  myContext = context;
 		  titleGraphic = BitmapFactory.decodeResource(getResources(), R.drawable.load_view);
-		  startButtonUp =  BitmapFactory.decodeResource(getResources(), R.drawable.start_button_up);
-		  startButtonDown =  BitmapFactory.decodeResource(getResources(), R.drawable.start_button_down);
+		  startButtonUp =  BitmapFactory.decodeResource(getResources(), R.drawable.start_button_up_new);
+		  startButtonDown =  BitmapFactory.decodeResource(getResources(), R.drawable.start_button_down_new);
+		  rulesButtonUp =  BitmapFactory.decodeResource(getResources(), R.drawable.rules_button_up);
+		  rulesButtonDown =  BitmapFactory.decodeResource(getResources(), R.drawable.rules_button_down);
 
 		}
 	
@@ -58,9 +63,16 @@ public class TitleView extends View {
 			canvas.drawBitmap(titleGraphic,
 					(screenW-titleGraphic.getWidth())/2, (screenH-titleGraphic.getHeight())/2, null);
 			if (playButtonPressed == false){
-			    canvas.drawBitmap(startButtonUp, (screenW-startButtonUp.getWidth())/2, (int)(screenH*0.3), null);
+			    canvas.drawBitmap(startButtonUp, (screenW-startButtonUp.getWidth())/2, (int)(screenH*0.25), null);
 			} else {
-				canvas.drawBitmap(startButtonDown, (screenW-startButtonUp.getWidth())/2, (int)(screenH*0.3), null);	
+				canvas.drawBitmap(startButtonDown, (screenW-startButtonUp.getWidth())/2, (int)(screenH*0.25), null);	
+			}
+			
+			
+			if (rulesButtonPressed == false){
+			    canvas.drawBitmap(rulesButtonUp, (screenW-rulesButtonUp.getWidth())/2, (int)(screenH - screenH*0.25 - rulesButtonUp.getHeight()), null);
+			} else {
+				canvas.drawBitmap(rulesButtonDown, (screenW-rulesButtonUp.getWidth())/2, (int)(screenH - screenH*0.25 - rulesButtonUp.getHeight()), null);	
 			}
 		}
 		
@@ -73,9 +85,17 @@ public class TitleView extends View {
 		case MotionEvent.ACTION_DOWN:
 			if (X > (screenW-startButtonUp.getWidth())/2 &&	
 					X < ((screenW-startButtonUp.getWidth())/2 + startButtonUp.getWidth()) && 
-					Y > (int)(screenH*0.3) && 	
-					Y < (int)(screenH*0.3) + startButtonUp.getHeight())	{
+					Y > (int)(screenH*0.25) && 	
+					Y < (int)(screenH*0.25) + startButtonUp.getHeight())	{
 					playButtonPressed = true;
+					} else {
+						
+						if (X > (screenW-startButtonUp.getWidth())/2 &&	
+								X < ((screenW-rulesButtonUp.getWidth())/2 + rulesButtonUp.getWidth()) && 
+								Y > (int)(screenH - screenH*0.25 - rulesButtonUp.getHeight()) && 	
+								Y < (int)(screenH - screenH*0.25 - rulesButtonUp.getHeight()) + rulesButtonUp.getHeight())	{
+								rulesButtonPressed = true;
+								}			
 					}
 		break;
 		case MotionEvent.ACTION_MOVE:
@@ -86,7 +106,10 @@ public class TitleView extends View {
 				GameActivity.class); 
 				myContext.startActivity(gameIntent); 
 				}	
+			if (rulesButtonPressed) {
+				}	
 			playButtonPressed = false;
+			rulesButtonPressed = false;
 		break;
 		
 		}

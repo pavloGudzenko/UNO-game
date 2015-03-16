@@ -13,6 +13,7 @@ import java.util.Random;
 
 
 
+
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -20,6 +21,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
@@ -63,8 +65,6 @@ public class GameView extends View {
 	private int movingY;
 	private CompPlayer computerPlayer = new	CompPlayer();
 	boolean toPlay = false;
-
-
 	
 	public GameView (Context context) {
 		super(context);
@@ -140,6 +140,7 @@ public class GameView extends View {
 			
 			invalidate();
 		}
+			
 		
 	public boolean onTouchEvent(MotionEvent event) { 
 		int eventaction = event.getAction();
@@ -197,8 +198,15 @@ public class GameView extends View {
 			else {
 				  myTurn = false;
 				  checkForPenalty();
-				  if (!myTurn){  
-				  makeComputerPlay();
+				  if (!myTurn){ 
+					  final Handler handler = new Handler();
+		              handler.postDelayed(new Runnable() {
+		                  @Override
+		                  public void run() {
+		                	  makeComputerPlay();
+		                  }
+		              }, 1000);	  
+				  
 			  }
 			}
 		  }
@@ -209,7 +217,13 @@ public class GameView extends View {
 					if (checkForValidDraw()) {
 					drawCard(userCards);
 					if (checkForValidDraw()){
-					makeComputerPlay();
+						  final Handler handler = new Handler();
+			              handler.postDelayed(new Runnable() {
+			                  @Override
+			                  public void run() {
+			                	  makeComputerPlay();
+			                  }
+			              }, 1000);
 					}
 					} else {
 					Toast.makeText(myContext, "You have cards for playing.", Toast.LENGTH_SHORT).show();
@@ -249,12 +263,23 @@ public class GameView extends View {
         		|| discardCards.get(0).getNumber().equals("plus2") || discardCards.get(0).getNumber().equals("plus4")
         	    || discardCards.get(0).getNumber().equals("all")) {
         drawCard(discardCards);
+        if (discardCards.get(0).getNumber().equals("skip") || discardCards.get(0).getNumber().equals("turn")
+        		|| discardCards.get(0).getNumber().equals("plus2") || discardCards.get(0).getNumber().equals("plus4")
+        	    || discardCards.get(0).getNumber().equals("all")) {
+        drawCard(discardCards);
+        }
         }
         validColor = discardCards.get(0).getColor();
         validNumber = discardCards.get(0).getNumber();
 	    myTurn = new Random().nextBoolean();
 		if (!myTurn) {
-		  makeComputerPlay();			
+			  final Handler handler = new Handler();
+              handler.postDelayed(new Runnable() {
+                  @Override
+                  public void run() {
+                	  makeComputerPlay();
+                  }
+              }, 2000);	 		
 		}
     }
 	
@@ -302,9 +327,9 @@ public class GameView extends View {
 	
 	private void dealCards() {
 		Collections.shuffle(deckCards,new Random()); 
-		for (int i = 0; i < 8; i++) { 
-		drawCard(userCards);
-		drawCard(compCards);
+		for (int i = 0; i < 8; i++) {
+                	  drawCard(userCards);
+                	  drawCard(compCards);     
 		}
 		}
 	
@@ -322,8 +347,14 @@ public class GameView extends View {
 		       Toast.makeText(myContext, "You chose RED color", Toast.LENGTH_SHORT).show();
 		       myTurn = false;
 				  checkForPenalty();
-				  if (!myTurn){  
-				  makeComputerPlay();
+				  if (!myTurn){ 
+					  final Handler handler = new Handler();
+		              handler.postDelayed(new Runnable() {
+		                  @Override
+		                  public void run() {
+		                	  makeComputerPlay();
+		                  }
+		              }, 1000);	 
 				  }
 		}
 		});
@@ -337,7 +368,13 @@ public class GameView extends View {
 		       myTurn = false;
 				  checkForPenalty();
 				  if (!myTurn){  
-				  makeComputerPlay();
+					  final Handler handler = new Handler();
+		              handler.postDelayed(new Runnable() {
+		                  @Override
+		                  public void run() {
+		                	  makeComputerPlay();
+		                  }
+		              }, 1000);	 
 				  }
 
 		}
@@ -352,7 +389,13 @@ public class GameView extends View {
 		       myTurn = false;
 				  checkForPenalty();
 				  if (!myTurn){  
-				  makeComputerPlay();
+					  final Handler handler = new Handler();
+		              handler.postDelayed(new Runnable() {
+		                  @Override
+		                  public void run() {
+		                	  makeComputerPlay();
+		                  }
+		              }, 1000);	 
 				  }
 
 		}
@@ -367,7 +410,13 @@ public class GameView extends View {
 		       myTurn = false;
 				  checkForPenalty();
 				  if (!myTurn){  
-				  makeComputerPlay();
+					  final Handler handler = new Handler();
+		              handler.postDelayed(new Runnable() {
+		                  @Override
+		                  public void run() {
+		                	  makeComputerPlay();
+		                  }
+		              }, 1000);	 
 				  }
 		}
 		});
@@ -393,11 +442,17 @@ public class GameView extends View {
 		int tempPlay = -1;
 			tempPlay = computerPlayer.makePlay(compCards, validColor, validNumber);
 			if (tempPlay == -1) {
-				drawCard(compCards);
-				tempPlay = computerPlayer.makePlay(compCards, validColor, validNumber);
-				 if (tempPlay != -1){
-					 makeComputerPlay(); 
-				 }
+	              drawCard(compCards);	              
+				  final Handler handler = new Handler();
+		              handler.postDelayed(new Runnable() {
+		                  @Override
+		                  public void run() {
+		      				int tempPlay = computerPlayer.makePlay(compCards, validColor, validNumber);
+		   				      if (tempPlay != -1){
+		                	  makeComputerPlay();
+		   				      }
+		                  }
+		              }, 1000);	  
 			} else {
 			  if (compCards.get(tempPlay).getColor().equals("all")) {
 			     validColor = computerPlayer.chooseColor(compCards);
@@ -427,7 +482,7 @@ public class GameView extends View {
 		       
 			   int cardID = goAfterPenaltyPlus2(userCards);
 			   if (cardID == -1){
-			        takePenaltyCards(userCards); 
+				    takePenaltyCards(userCards);
 			        skipTurn();
 		   } else {
 			   drawOrAnswerDialog(); 
@@ -442,7 +497,7 @@ public class GameView extends View {
 		   
 		   int cardID = goAfterPenaltyPlus4(userCards);
 		   if (cardID == -1){  
-			   takePenaltyCards(userCards);
+        	   takePenaltyCards(userCards);
 		       skipTurn();
 		   } else {
 			   drawOrAnswerDialog();
@@ -469,7 +524,13 @@ public class GameView extends View {
 		   
 		   int cardID = goAfterPenaltyPlus2(compCards);
 		   if (cardID == -1){
-		       takePenaltyCards(compCards);
+			   final Handler handler = new Handler();
+	           handler.postDelayed(new Runnable() {
+	               @Override
+	               public void run() {
+	    		       takePenaltyCards(compCards);
+	               }
+	           }, 1000);
 		       skipTurn();
 		   } else {
 			   validColor = compCards.get(cardID).getColor();
@@ -489,7 +550,13 @@ public class GameView extends View {
 		   
 		   int cardID = goAfterPenaltyPlus4(compCards);
 		   if (cardID == -1){
-               takePenaltyCards(compCards);
+			   final Handler handler = new Handler();
+	           handler.postDelayed(new Runnable() {
+	               @Override
+	               public void run() {
+	    		       takePenaltyCards(compCards);
+	               }
+	           }, 1000);
 			   skipTurn();
 		   } else {
 			   validColor = computerPlayer.chooseColor(compCards);
@@ -515,7 +582,14 @@ public class GameView extends View {
    private void skipTurn(){
 	   if (myTurn == true){
 		   myTurn = false;
-		   makeComputerPlay();
+		   
+		   final Handler handler = new Handler();
+           handler.postDelayed(new Runnable() {
+               @Override
+               public void run() {
+             	  makeComputerPlay();
+               }
+           }, 1500);	 
 	   } else if (myTurn == false) {
 		   myTurn = true; 
 	   }	   
@@ -566,7 +640,13 @@ public class GameView extends View {
 			   toPlay = false;
 			   drawOrAnswerDialog.dismiss();
 			   Toast.makeText(myContext, "You chose to DRAW cards", Toast.LENGTH_SHORT).show();
-			   takePenaltyCards(userCards);
+			   final Handler handler = new Handler();
+	           handler.postDelayed(new Runnable() {
+	               @Override
+	               public void run() {
+	            	   takePenaltyCards(userCards);
+	               }
+	           }, 750);
 		       }
 		});
 			
@@ -576,9 +656,18 @@ public class GameView extends View {
 
    
    private void takePenaltyCards(List<Card> handCards){
+	   final Handler handler = new Handler();
 	   for (int i = penaltyCards.size() - 1; i >= 0; i--){
+		 
+           handler.postDelayed(new Runnable() {
+               @Override
+               public void run() {
+             	 // makeComputerPlay();
+               }
+           }, 500);
 		   handCards.add(0, penaltyCards.get(i));
 	       penaltyCards.remove(i);
+
 	     } 
    }
    
@@ -626,7 +715,13 @@ public class GameView extends View {
 		   validColor = discardCards.get(0).getColor();
 		   validNumber = discardCards.get(0).getNumber();
 	   if (!myTurn) {
-		   makeComputerPlay();
+		   final Handler handler = new Handler();
+           handler.postDelayed(new Runnable() {
+               @Override
+               public void run() {
+             	  makeComputerPlay();
+               }
+           }, 1500);	 
 	   }
 	   }
    
